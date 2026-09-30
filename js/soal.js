@@ -1,158 +1,53 @@
 (function (global) {
   'use strict';
 
-  // Database soal Pendidikan Pancasila - Kelas 3 SD Semester Ganjil
-  // l: tingkat (mudah | sedang | sulit)
-  // k: kategori materi, q: pertanyaan, a: jawaban benar, d: 5 pengecoh
-  // img: (opsional) path gambar nyata untuk soal bergambar
-  const LIST = [
-    // ---------- MUDAH: Dasar Negara ----------
-    { l: 'mudah', k: 'Dasar Negara', q: 'Apa dasar negara Indonesia?', a: 'Pancasila', d: ['UUD 1945', 'Garuda', 'Bhinneka', 'Merah Putih', 'Indonesia'] },
-    { l: 'mudah', k: 'Dasar Negara', q: 'Pancasila terdiri dari berapa sila?', a: '5 sila', d: ['3 sila', '4 sila', '6 sila', '7 sila', '2 sila'] },
-    { l: 'mudah', k: 'Dasar Negara', q: 'Kata "panca" artinya...', a: 'lima', d: ['tiga', 'dasar', 'satu', 'tujuh', 'empat'] },
-    { l: 'mudah', k: 'Dasar Negara', q: 'Kata "sila" artinya...', a: 'dasar', d: ['lima', 'aturan', 'negara', 'bangsa', 'raja'] },
+  // Gabungan bank soal semua mapel - Kelas 3 SD Semester Ganjil
+  // Dimuat SETELAH js/soal/<mapel>.js (array global.SoalParts diisi tiap bank).
+  const parts = (global.SoalParts || []).slice();
 
-    // ---------- MUDAH: Sila Pancasila ----------
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Sila pertama diawali kata...', a: 'Ketuhanan', d: ['Persatuan', 'Keadilan', 'Kerakyatan', 'Kemanusiaan', 'Negara'] },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Sila kedua diawali kata...', a: 'Kemanusiaan', d: ['Ketuhanan', 'Persatuan', 'Kerakyatan', 'Keadilan', 'Bangsa'] },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Sila ketiga diawali kata...', a: 'Persatuan', d: ['Ketuhanan', 'Kemanusiaan', 'Kerakyatan', 'Keadilan', 'Rakyat'] },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Sila keempat diawali kata...', a: 'Kerakyatan', d: ['Keadilan', 'Persatuan', 'Ketuhanan', 'Kemanusiaan', 'Sosial'] },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Sila kelima diawali kata...', a: 'Keadilan', d: ['Kerakyatan', 'Persatuan', 'Ketuhanan', 'Kemanusiaan', 'Sosial'] },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Gambar ini melambangkan sila ke...', a: 'satu', d: ['dua', 'tiga', 'empat', 'lima', 'enam'], img: 'assets/img/bintang.png' },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Pohon beringin melambangkan sila ke...', a: 'tiga', d: ['satu', 'dua', 'empat', 'lima', 'enam'], img: 'assets/img/beringin.jpg' },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Kepala banteng melambangkan sila ke...', a: 'empat', d: ['satu', 'dua', 'tiga', 'lima', 'enam'], img: 'assets/img/banteng.jpg' },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Padi dan kapas melambangkan sila ke...', a: 'lima', d: ['satu', 'dua', 'tiga', 'empat', 'enam'], img: 'assets/img/kapas.jpg' },
-    { l: 'mudah', k: 'Sila Pancasila', q: 'Rantai melambangkan sila ke...', a: 'dua', d: ['satu', 'tiga', 'empat', 'lima', 'enam'] },
+  const list = [];
+  const subjects = [];
+  let id = 0;
 
-    // ---------- MUDAH: Lambang Negara ----------
-    { l: 'mudah', k: 'Lambang Negara', q: 'Burung apa pada lambang negara ini?', a: 'Garuda', d: ['Elang', 'Banteng', 'Komodo', 'Merak', 'Angsa'], img: 'assets/img/garuda.png' },
-    { l: 'mudah', k: 'Lambang Negara', q: 'Apa nama lengkap lambang negara kita?', a: 'Garuda Pancasila', d: ['Garuda Emas', 'Garuda Muda', 'Rajawali', 'Elang Putih', 'Garuda Jaya'] },
-
-    // ---------- MUDAH: Simbol Negara ----------
-    { l: 'mudah', k: 'Simbol Negara', q: 'Apa warna bendera kita?', a: 'Merah putih', d: ['Biru kuning', 'Putih hijau', 'Hitam emas', 'Merah hijau', 'Kuning putih'], img: 'assets/img/bendera.png' },
-    { l: 'mudah', k: 'Simbol Negara', q: 'Bendera merah putih terdiri dari berapa warna?', a: '2 warna', d: ['3 warna', '4 warna', '5 warna', '6 warna', '1 warna'] },
-    { l: 'mudah', k: 'Simbol Negara', q: 'Apa nama lagu kebangsaan pada gambar ini?', a: 'Indonesia Raya', d: ['Merdeka', 'Satu Nusa', 'Ibu Kita', 'Rajawali', 'Gembira'], img: 'assets/img/indonesiaraya.jpg' },
-    { l: 'mudah', k: 'Simbol Negara', q: 'Kapan bendera ini pertama dikibarkan?', a: '17 Agustus', d: ['1 Juni', '10 November', '28 Oktober', '5 Desember', '17 Juli'], img: 'assets/img/bendera1945.jpg' },
-
-    // ---------- MUDAH: Sejarah ----------
-    { l: 'mudah', k: 'Sejarah', q: 'Apa nama naskah pada gambar?', a: 'Proklamasi', d: ['UUD 1945', 'Piagam', 'Kongres', 'Konferensi', 'Perjanjian'], img: 'assets/img/naskah.jpg' },
-    { l: 'mudah', k: 'Sejarah', q: 'Siapa presiden pertama Indonesia?', a: 'Soekarno', d: ['Hatta', 'Jokowi', 'Suharto', 'Habibie', 'Gus Dur'], img: 'assets/img/soekarno.jpg' },
-    { l: 'mudah', k: 'Sejarah', q: 'Apa nama undang-undang dasar negara kita?', a: 'UUD 1945', d: ['KUHP', 'Perppu', 'Piagam', 'Dekrit', 'Risalah'], img: 'assets/img/uud.jpg' },
-    { l: 'mudah', k: 'Sejarah', q: 'Siapa yang membacakan Proklamasi?', a: 'Soekarno', d: ['Hatta', 'Bung Tomo', 'Diponegoro', 'Pattimura', 'Sudirman'], img: 'assets/img/proklamasi.jpg' },
-    { l: 'mudah', k: 'Sejarah', q: 'Tahun kemerdekaan Indonesia adalah...', a: '1945', d: ['1908', '1928', '1950', '1942', '1901'] },
-    { l: 'mudah', k: 'Sejarah', q: 'Sumpah Pemuda diucapkan pada tahun...', a: '1928', d: ['1908', '1945', '1930', '1950', '1901'] },
-
-    // ---------- MUDAH: NKRI ----------
-    { l: 'mudah', k: 'NKRI', q: 'Negara kita bernama...', a: 'Indonesia', d: ['Malaysia', 'Thailand', 'Filipina', 'Brunei', 'Singapura'] },
-    { l: 'mudah', k: 'NKRI', q: 'Ibu kota Indonesia adalah...', a: 'Jakarta', d: ['Bandung', 'Medan', 'Surabaya', 'Yogya', 'Denpasar'] },
-    { l: 'mudah', k: 'NKRI', q: 'Pulau tempat Jakarta berada...', a: 'Jawa', d: ['Sumatera', 'Kalimantan', 'Sulawesi', 'Papua', 'Bali'] },
-    { l: 'mudah', k: 'NKRI', q: 'Semboyang Bhinneka Tunggal Ika berarti...', a: 'bersatu', d: ['berpecah', 'bersaing', 'bermusuhan', 'sendirian', 'bertengkar'] },
-    { l: 'mudah', k: 'NKRI', q: 'Kata "Bhinneka" artinya...', a: 'berbeda', d: ['sama', 'satu', 'hampir', 'mirip', 'serupa'] },
-    { l: 'mudah', k: 'Lambang Negara', q: 'Pita yang dipegang Garuda bertuliskan...', a: 'Bhinneka', d: ['Merdeka', 'Indonesia', 'Pancasila', 'Rajawali', 'Sumpah'] },
-
-    // ---------- MUDAH: Aturan & Sikap ----------
-    { l: 'mudah', k: 'Aturan & Norma', q: 'Saat bendera dikibarkan, kita harus...', a: 'beri hormat', d: ['tidur', 'berlari', 'bermain', 'berteriak', 'makan'] },
-    { l: 'mudah', k: 'Aturan & Norma', q: 'Di sekolah kita harus...', a: 'patuh aturan', d: ['memalak', 'merusak', 'berkelahi', 'mencontek', 'membohongi'] },
-    { l: 'mudah', k: 'Sikap Baik', q: 'Kita harus ... kepada sesama teman.', a: 'menghormati', d: ['membenci', 'menyakiti', 'mengejek', 'memukul', 'menipu'] },
-    { l: 'mudah', k: 'Sikap Baik', q: 'Murid yang baik pasti...', a: 'rajin', d: ['malas', 'nakal', 'berisik', 'curang', 'ceroboh'] },
-    { l: 'mudah', k: 'Sikap Baik', q: 'Bertemu guru, kita sebaiknya...', a: 'sopan', d: ['kasar', 'malas', 'ceroboh', 'lalai', 'bandel'] },
-
-    // ---------- MUDAH: Identitas & Kewajiban ----------
-    { l: 'mudah', k: 'Identitas Diri', q: 'Nama, tempat lahir, dan tanggal lahir disebut...', a: 'identitas', d: ['alamat', 'hobi', 'nilai', 'prestasi', 'kegiatan'] },
-    { l: 'mudah', k: 'Identitas Diri', q: 'Bahasa persatuan bangsa Indonesia adalah...', a: 'Bahasa Indonesia', d: ['Bahasa Jawa', 'Bahasa Sunda', 'Bahasa Inggris', 'Bahasa Arab', 'Bahasa Belanda'] },
-    { l: 'mudah', k: 'Hak & Kewajiban', q: 'Kewajiban siswa di kelas adalah...', a: 'belajar', d: ['bermain', 'tidur', 'mencontek', 'berteriak', 'berlari'] },
-
-    // ---------- SEDANG: Lambang & Simbol ----------
-    { l: 'sedang', k: 'Lambang Negara', q: 'Berapa jumlah sila pada perisai Garuda?', a: '5', d: ['3', '4', '6', '7', '8'], img: 'assets/img/garuda.png' },
-    { l: 'sedang', k: 'Simbol Negara', q: 'Bintang pada perisai berwarna...', a: 'kuning', d: ['merah', 'hijau', 'biru', 'putih', 'hitam'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Lambang sila pertama adalah...', a: 'bintang', d: ['rantai', 'beringin', 'banteng', 'padi', 'kapas'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Lambang sila kedua adalah...', a: 'rantai', d: ['bintang', 'beringin', 'banteng', 'padi', 'kapas'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Lambang sila ketiga adalah...', a: 'beringin', d: ['bintang', 'rantai', 'banteng', 'padi', 'kapas'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Lambang sila keempat adalah...', a: 'banteng', d: ['bintang', 'rantai', 'beringin', 'padi', 'kapas'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Lambang sila kelima adalah...', a: 'padi kapas', d: ['bintang', 'rantai', 'beringin', 'banteng', 'perisai'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Banteng dijadikan lambang karena suka...', a: 'berkumpul', d: ['sendirian', 'berlari', 'bersembunyi', 'berterbang', 'berenang'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Pohon beringin bermakna rakyat bisa...', a: 'berteduh', d: ['berlari', 'berenang', 'berlomba', 'bersembunyi', 'berteriak'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Rantai yang berkait melambangkan rakyat harus...', a: 'bersatu', d: ['berpecah', 'sendirian', 'berlawanan', 'bersaing', 'bermusuhan'] },
-    { l: 'sedang', k: 'Sila Pancasila', q: 'Padi dan kapas melambangkan...', a: 'kemakmuran', d: ['kelaparan', 'perang', 'bencana', 'kekeringan', 'wabah'], img: 'assets/img/padi.jpg' },
-    { l: 'sedang', k: 'Lambang Negara', q: 'Perisai di dada Garuda melambangkan...', a: 'pertahanan', d: ['permainan', 'perjalanan', 'perayaan', 'perpustakaan', 'pertengkaran'] },
-    { l: 'sedang', k: 'Lambang Negara', q: 'Bulu di leher Garuda melambangkan tahun...', a: '1945', d: ['1908', '1947', '1950', '2020', '1900'] },
-    { l: 'sedang', k: 'Lambang Negara', q: 'Bulu sayap Garuda berjumlah...', a: '17', d: ['12', '15', '18', '19', '25'] },
-    { l: 'sedang', k: 'Lambang Negara', q: 'Bulu ekor Garuda berjumlah...', a: '8', d: ['5', '6', '7', '9', '10'] },
-    { l: 'sedang', k: 'Lambang Negara', q: 'Warna emas pada Garuda melambangkan...', a: 'keagungan', d: ['kelemahan', 'perang', 'keburukan', 'kesedihan', 'keceriaan'] },
-    { l: 'sedang', k: 'Simbol Negara', q: 'Garis melintang pada perisai melambangkan...', a: 'khatulistiwa', d: ['samudra', 'lautan', 'gunung', 'gurun', 'sungai'] },
-
-    // ---------- SEDANG: NKRI ----------
-    { l: 'sedang', k: 'NKRI', q: 'Indonesia memiliki sekitar berapa pulau?', a: '17.000', d: ['500', '1.000', '5.000', '30.000', '100'] },
-    { l: 'sedang', k: 'NKRI', q: 'Bhinneka Tunggal Ika berasal dari kitab...', a: 'Sutasoma', d: ['Ramayana', 'Babad Jawi', 'Centhini', 'Serat', 'Hikayat'] },
-
-    // ---------- SEDANG: Aturan, Hak, Identitas ----------
-    { l: 'sedang', k: 'Aturan & Norma', q: 'Aturan tertulis di sekolah disebut...', a: 'tata tertib', d: ['tata bahasa', 'tata kota', 'tata rias', 'tata surya', 'tata nilai'] },
-    { l: 'sedang', k: 'Aturan & Norma', q: 'Hukum tidak tertulis yang dilestarikan masyarakat disebut...', a: 'adat istiadat', d: ['undang-undang', 'peraturan', 'perjanjian', 'kontrak', 'tata tertib'] },
-    { l: 'sedang', k: 'Hak & Kewajiban', q: 'Setiap anak berhak mendapat...', a: 'pendidikan', d: ['hukuman', 'denda', 'sanksi', 'penjara', 'hinaan'] },
-    { l: 'sedang', k: 'Hak & Kewajiban', q: 'Hak dan kewajiban harus dijalankan...', a: 'seimbang', d: ['berat', 'santai', 'bebas', 'sepi', 'pilih-pilih'] },
-    { l: 'sedang', k: 'Identitas Diri', q: 'Banyak suku dan agama di Indonesia disebut...', a: 'keberagaman', d: ['persamaan', 'persaingan', 'perpecahan', 'persatuan', 'keseragaman'] },
-    { l: 'sedang', k: 'Identitas Diri', q: 'Menghargai teman yang berbeda suku artinya...', a: 'menghargai', d: ['memusuhi', 'mengejek', 'membedakan', 'mengucilkan', 'memaksakan'] },
-
-    // ---------- SEDANG: Sikap sesuai sila ----------
-    { l: 'sedang', k: 'Sikap Baik', q: 'Menghormati teman yang sedang beribadah sesuai sila...', a: 'pertama', d: ['kedua', 'ketiga', 'keempat', 'kelima', 'keenam'] },
-    { l: 'sedang', k: 'Sikap Baik', q: 'Memilih ketua kelas dengan musyawarah sesuai sila...', a: 'keempat', d: ['pertama', 'kedua', 'ketiga', 'kelima', 'keenam'] },
-    { l: 'sedang', k: 'Sikap Baik', q: 'Bersikap adil terhadap semua teman sesuai sila...', a: 'kelima', d: ['pertama', 'kedua', 'ketiga', 'keempat', 'keenam'] },
-
-    // ---------- SEDANG: Sejarah & Dasar Negara ----------
-    { l: 'sedang', k: 'Sejarah', q: 'Pidato Soekarno 1 Juni 1945 membahas...', a: 'Pancasila', d: ['Proklamasi', 'UUD 1945', 'Kemerdekaan', 'Kebangsaan', 'Sumpah Pemuda'] },
-    { l: 'sedang', k: 'Sejarah', q: 'Soekarno dijuluki...', a: 'Bung Karno', d: ['Bung Tomo', 'Bung Hatta', 'Sudirman', 'Gatot', 'Diponegoro'], img: 'assets/img/soekarno.jpg' },
-    { l: 'sedang', k: 'Sejarah', q: 'Naskah Proklamasi diketik oleh...', a: 'Sayuti Melik', d: ['Maeda', 'Sjam', 'Sukiman', 'Latief', 'Soebardjo'] },
-    { l: 'sedang', k: 'Sejarah', q: 'Pertempuran 10 November 1945 terjadi di...', a: 'Surabaya', d: ['Jakarta', 'Bandung', 'Medan', 'Yogya', 'Makassar'] },
-    { l: 'sedang', k: 'Sejarah', q: 'Sumpah Pemuda menegaskan satu bangsa, satu nusa, satu...', a: 'bahasa', d: ['agama', 'suku', 'negara', 'raja', 'pulau'] },
-    { l: 'sedang', k: 'Sejarah', q: 'Siapa pencipta lagu pada gambar?', a: 'Supratman', d: ['Soekarno', 'Hatta', 'Sudirman', 'Djanur', 'Ismail'], img: 'assets/img/indonesiaraya.jpg' },
-    { l: 'sedang', k: 'Dasar Negara', q: 'Pancasila ditetapkan sebagai dasar negara pada tanggal...', a: '18 Agustus', d: ['1 Juni', '17 Agustus', '29 Mei', '10 November', '28 Oktober'] },
-
-    // ---------- SULIT: Sejarah ----------
-    { l: 'sulit', k: 'Sejarah', q: 'Kepanjangan BPUPKI adalah Badan...', a: 'Penyelidik', d: ['Pemberontak', 'Penjelajah', 'Pelajar', 'Pemilih', 'Penulis'] },
-    { l: 'sulit', k: 'Sejarah', q: 'Sidang pertama PPKI berlangsung tanggal...', a: '18 Agustus', d: ['16 Agustus', '17 Agustus', '19 Agustus', '20 Agustus', '15 Agustus'] },
-    { l: 'sulit', k: 'Sejarah', q: 'Hari lahir Pancasila diperingati setiap...', a: '1 Juni', d: ['17 Agustus', '10 November', '28 Oktober', '20 Mei', '5 Desember'] },
-    { l: 'sulit', k: 'Sejarah', q: 'Perancang lambang Garuda Pancasila adalah...', a: 'Hamid II', d: ['Soekarno', 'Hatta', 'Sudirman', 'Ki Hajar', 'Dwijendra'] },
-    { l: 'sulit', k: 'Sejarah', q: 'Garuda Pancasila diresmikan penggunaannya tahun...', a: '1950', d: ['1945', '1946', '1948', '1955', '1960'] },
-    { l: 'sulit', k: 'Sejarah', q: 'Jepang menyerah pada tahun...', a: '1945', d: ['1942', '1946', '1948', '1949', '1950'] },
-
-    // ---------- SULIT: NKRI ----------
-    { l: 'sulit', k: 'NKRI', q: 'Garis khatulistiwa melintasi pulau...', a: 'Kalimantan', d: ['Jawa', 'Bali', 'Timor', 'Buru', 'Sumba'] },
-    { l: 'sulit', k: 'NKRI', q: 'Kata Indonesia berasal dari bahasa...', a: 'Yunani', d: ['Belanda', 'Inggris', 'Portugis', 'Melayu', 'Arab'] },
-    { l: 'sulit', k: 'NKRI', q: 'Jumlah provinsi Indonesia saat ini...', a: '38', d: ['34', '33', '40', '36', '32'] },
-
-    // ---------- SULIT: Simbol & Lambang ----------
-    { l: 'sulit', k: 'Simbol Negara', q: 'Mata uang resmi Indonesia adalah...', a: 'Rupiah', d: ['Ringgit', 'Baht', 'Dolar', 'Yen', 'Euro'] },
-    { l: 'sulit', k: 'Lambang Negara', q: 'Jumlah bulu di pangkal ekor Garuda...', a: '19', d: ['17', '18', '45', '8', '12'] },
-    { l: 'sulit', k: 'Lambang Negara', q: 'Bulu di leher Garuda berjumlah...', a: '45', d: ['17', '8', '19', '24', '50'] },
-    { l: 'sulit', k: 'Dasar Negara', q: 'Ideologi bangsa Indonesia adalah...', a: 'Pancasila', d: ['Komunis', 'Liberal', 'Monarki', 'Anarki', 'Feodal'] },
-    { l: 'sulit', k: 'Dasar Negara', q: 'Pancasila merupakan dasar dari...', a: 'negara', d: ['sekolah', 'keluarga', 'permainan', 'rumah', 'acara'] },
-
-    // ---------- SULIT: Sila & Sikap ----------
-    { l: 'sulit', k: 'Sila Pancasila', q: 'Banteng adalah hewan yang suka...', a: 'berkelompok', d: ['sendirian', 'bersembunyi', 'berenang', 'berterbang', 'berlari'] },
-    { l: 'sulit', k: 'Sikap Baik', q: 'Keadilan sosial di sekolah contohnya...', a: 'berbagi', d: ['memihak', 'memalak', 'mencontek', 'menghina', 'memotong'] },
-    { l: 'sulit', k: 'Sikap Baik', q: 'Membantu korban bencana mencerminkan sila...', a: 'kedua', d: ['pertama', 'ketiga', 'keempat', 'kelima', 'keenam'] },
-    { l: 'sulit', k: 'Sikap Baik', q: 'Tidak membeda-bedakan teman sesuai sila...', a: 'ketiga', d: ['pertama', 'kedua', 'keempat', 'kelima', 'keenam'] },
-
-    // ---------- SULIT: Aturan, Hak, Identitas ----------
-    { l: 'sulit', k: 'Aturan & Norma', q: 'Norma yang dijalankan karena ancaman hukuman...', a: 'norma hukum', d: ['norma adat', 'norma agama', 'norma sopan', 'norma keluarga', 'norma sekolah'] },
-    { l: 'sulit', k: 'Aturan & Norma', q: 'Undang-undang termasuk jenis norma...', a: 'hukum', d: ['adat', 'agama', 'sopan', 'keluarga', 'sekolah'] },
-    { l: 'sulit', k: 'Hak & Kewajiban', q: 'Warga negara wajib membayar...', a: 'pajak', d: ['hadiah', 'gaji', 'bonus', 'libur', 'hormat'] },
-    { l: 'sulit', k: 'Hak & Kewajiban', q: 'Anak berhak dilindungi orang tua dan...', a: 'negara', d: ['tamu', 'tetangga', 'pengunjung', 'wisatawan', 'tukang'] },
-    { l: 'sulit', k: 'Identitas Diri', q: 'Bahasa Indonesia berasal dari bahasa...', a: 'Melayu', d: ['Jawa', 'Arab', 'Belanda', 'Inggris', 'Sunda'] },
-    { l: 'sulit', k: 'Identitas Diri', q: 'Identitas yang menunjukkan asal daerah seseorang...', a: 'suku', d: ['nilai', 'hobi', 'umur', 'tinggi', 'alamat'] },
-    { l: 'sulit', k: 'Hak & Kewajiban', q: 'Kepala negara Indonesia disebut...', a: 'presiden', d: ['gubernur', 'bupati', 'walikota', 'lurah', 'camat'] },
-  ];
-
-  LIST.forEach((s, i) => {
-    s.id = i + 1;
+  parts.forEach((p) => {
+    subjects.push({ key: p.key, name: p.name, count: p.list.length });
+    p.list.forEach((s) => {
+      s.id = ++id;
+      s.subj = p.key;
+      list.push(s);
+    });
   });
 
   const kategori = [];
-  LIST.forEach((s) => {
+  list.forEach((s) => {
     if (kategori.indexOf(s.k) === -1) kategori.push(s.k);
   });
 
-  global.Soal = { list: LIST, kategori: kategori };
+  function part(key) {
+    for (let i = 0; i < parts.length; i++) if (parts[i].key === key) return parts[i];
+    return null;
+  }
+
+  function nameOf(key) {
+    const p = part(key);
+    return p ? p.name : '';
+  }
+
+  function listOf(key) {
+    const p = part(key);
+    return p ? p.list : list;
+  }
+
+  global.Soal = {
+    list: list,
+    kategori: kategori,
+    subjects: subjects,
+    parts: parts,
+    part: part,
+    nameOf: nameOf,
+    listOf: listOf,
+    total: list.length
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 if (typeof module !== 'undefined' && module.exports) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Battle Pendidikan Pancasila - Kelas 3 SD</title>
+<title>Gesture Battle Semua Mapel - Kelas 3 SD</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -14,9 +14,9 @@
     <div class="menu-wrap">
       <header class="brand">
         <div class="brand-glyphs" id="brand-glyphs"></div>
-        <h1>Gesture Battle<span>Pendidikan Pancasila</span></h1>
+        <h1>Gesture Battle<span>Semua Mapel</span></h1>
         <p class="tagline">Dua murid, dua telunjuk, rebutan jawaban!</p>
-        <p class="tagline-sub">Kelas 3 SD &bull; Semester Ganjil &bull; 100 soal</p>
+        <p class="tagline-sub">Kelas 3 SD &bull; Semester Ganjil &bull; 7 mapel &bull; 700 soal</p>
       </header>
 
       <div class="menu-grid">
@@ -32,6 +32,10 @@
           </label>
 
           <h2>Aturan Main</h2>
+          <div class="field row">
+            <span>Mapel</span>
+            <select id="sel-mapel"></select>
+          </div>
           <div class="field row">
             <span>Mode</span>
             <div class="segmented" id="seg-mode">
@@ -216,7 +220,14 @@
   <div id="toast"></div>
 </div>
 
-<script src="js/soal.js"></script>
+  <script src="js/soal/pancasila.js"></script>
+  <script src="js/soal/bindo.js"></script>
+  <script src="js/soal/matematika.js"></script>
+  <script src="js/soal/ipas.js"></script>
+  <script src="js/soal/seni.js"></script>
+  <script src="js/soal/jawa.js"></script>
+  <script src="js/soal/inggris.js"></script>
+  <script src="js/soal.js"></script>
 <script src="js/logic.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/gestures.js"></script>

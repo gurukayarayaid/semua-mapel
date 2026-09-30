@@ -54,11 +54,17 @@
     const lvl = LEVELS[level];
     const bank = (global.Soal && global.Soal.list) || [];
     if (!bank.length) {
-      return { type: '', cat: '', id: 0, answer: '', q: '', img: '', options: [], level };
+      return { type: '', cat: '', id: 0, answer: '', q: '', img: '', subj: '', subjName: '', options: [], level };
     }
 
     const allowedLevels = LEVEL_POOL[level] || ['mudah', 'sedang', 'sulit'];
     let pool = bank.filter((s) => allowedLevels.indexOf(s.l) !== -1);
+
+    if (cfg.subject && global.Soal && typeof global.Soal.listOf === 'function') {
+      const sub = global.Soal.listOf(cfg.subject);
+      const subPool = sub.filter((s) => allowedLevels.indexOf(s.l) !== -1);
+      if (subPool.length) pool = subPool;
+    }
 
     const recent = cfg.answers || [];
     let fresh = pool.filter((s) => recent.indexOf(s.id) === -1);
@@ -82,7 +88,18 @@
       ...distractors.map((d) => ({ value: d, correct: false })),
     ]);
 
-    return { type: s.k, cat: s.k, id: s.id, answer: s.a, q: s.q, img: s.img || '', options, level };
+    return {
+      type: s.k,
+      cat: s.k,
+      id: s.id,
+      answer: s.a,
+      q: s.q,
+      img: s.img || '',
+      subj: s.subj || '',
+      subjName: (global.Soal && typeof global.Soal.nameOf === 'function' && global.Soal.nameOf(s.subj)) || '',
+      options,
+      level,
+    };
   }
 
   function scoreCorrect(timeFrac, streak) {

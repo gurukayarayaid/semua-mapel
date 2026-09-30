@@ -80,6 +80,7 @@
       this.round = n;
       this.question = AJ.createRound({
         level: this.settings.level,
+        subject: this.settings.mapel,
         answers: this.answerHistory,
         types: this.typeHistory.slice(-2),
       });

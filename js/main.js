@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const SETTINGS_KEY = 'aj-gesture-battle-v1';
+  const SETTINGS_KEY = 'aj-gesture-battle-semuamapel-v1';
   const DEFAULT_SETTINGS = {
     p1: 'Pemain 1',
     p2: 'Pemain 2',
@@ -14,6 +14,7 @@
     mirror: true,
     sound: true,
     camId: '',
+    mapel: 'pancasila',
     cal: { 1: null, 2: null },
   };
 
@@ -28,6 +29,7 @@
       if (raw) Object.assign(s, JSON.parse(raw));
     } catch (e) {}
     if (!s.cal) s.cal = { 1: null, 2: null };
+    if (!s.mapel) s.mapel = DEFAULT_SETTINGS.mapel;
     return s;
   }
 
@@ -219,6 +221,7 @@
     set('in-p2', settings.p2);
     set('in-dwell', settings.dwellMs);
     set('in-gain', settings.gain);
+    syncMapel();
     const ck = UI.get('ck-mirror');
     if (ck) ck.checked = !!settings.mirror;
     const lbl = UI.get('lbl-dwell');
@@ -232,6 +235,23 @@
     UI.setSoundLabel(settings.sound);
     UI.setFullscreenLabel(isFullscreen());
     Sfx.enabled = !!settings.sound;
+  }
+
+  function syncMapel() {
+    const sel = UI.get('sel-mapel');
+    const subs = typeof Soal !== 'undefined' && Soal.subjects ? Soal.subjects : [];
+    if (!sel) return;
+    if (sel.options.length !== subs.length) {
+      sel.textContent = '';
+      subs.forEach((s) => {
+        const o = document.createElement('option');
+        o.value = s.key;
+        o.textContent = s.name + ' \u00b7 ' + s.count + ' soal';
+        sel.appendChild(o);
+      });
+    }
+    if (subs.length && !subs.some((s) => s.key === settings.mapel)) settings.mapel = subs[0].key;
+    sel.value = settings.mapel;
   }
 
   function segSet(id, v) {
@@ -317,6 +337,12 @@
     if (in2) in2.addEventListener('input', () => { settings.p2 = in2.value || 'Pemain 2'; UI.setNames(settings.p1, settings.p2); saveSettings(); });
 
     segWire('seg-mode', (v) => { settings.mode = v === '1p' ? '1p' : '2p'; applyMode(); });
+    const selM = UI.get('sel-mapel');
+    if (selM) selM.addEventListener('change', () => {
+      settings.mapel = selM.value;
+      saveSettings();
+      Sfx.select();
+    });
     segWire('seg-level', (v) => { settings.level = v; });
     segWire('seg-rounds', (v) => { settings.rounds = parseInt(v, 10) || 10; });
     segWire('seg-timer', (v) => { settings.timerOn = v !== 'off'; });

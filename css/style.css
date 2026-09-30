@@ -157,6 +157,13 @@ button, input, select { font: inherit; color: inherit; }
 }
 .field.row input:focus { border-color: var(--c1); }
 
+.field select {
+  flex: 1; min-width: 0; border: 2px solid #dfe4ff; border-radius: 14px; padding: 12px 14px;
+  font-size: clamp(15px, 1.8vh, 21px); font-weight: 700; background: #f8faff; outline: none;
+  color: var(--ink); cursor: pointer; appearance: auto;
+}
+.field select:focus { border-color: var(--c1); }
+
 .swatch { width: 26px; height: 26px; border-radius: 8px; flex: none; }
 .swatch.s1 { background: var(--c1); }
 .swatch.s2 { background: var(--c2); }

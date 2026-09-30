@@ -5,7 +5,10 @@ import path from 'path';
 
 const require = createRequire(import.meta.url);
 const dir = path.dirname(fileURLToPath(import.meta.url));
-require(path.join(dir, '..', 'js', 'soal.js'));
+const BANKS = ['pancasila', 'bindo', 'matematika', 'ipas', 'seni', 'jawa', 'inggris'];
+const KEYS = ['pancasila', 'bindo', 'matematika', 'ipas', 'seni', 'jawa', 'inggris'];
+const NAMES = ['Pendidikan Pancasila', 'Bahasa Indonesia', 'Matematika', 'IPAS', 'Seni Rupa', 'Bahasa Jawa', 'Bahasa Inggris'];
+BANKS.forEach((k) => require(path.join(dir, '..', 'js', 'soal', k + '.js')));
 const AJ = require(path.join(dir, '..', 'js', 'logic.js'));
 const SOAL = require(path.join(dir, '..', 'js', 'soal.js'));
 
@@ -229,26 +232,63 @@ console.log('== dwell ==');
   ok(!r2.fired, 'target baru tidak langsung fired walau akumulasi lama');
 }
 
-console.log('== bank soal ==');
+console.log('== bank soal: 7 mapel ==');
 {
-  eq(SOAL.list.length, 100, 'ada 100 soal');
-  const hitung = { mudah: 0, sedang: 0, sulit: 0 };
+  eq(SOAL.subjects.length, 7, 'ada 7 mapel');
+  eq(SOAL.list.length, 700, 'total 700 soal');
+  eq(SOAL.total, 700, 'Soal.total = 700');
+
+  KEYS.forEach((k, i) => {
+    const p = SOAL.part(k);
+    ok(!!p, 'bank "' + k + '" ada');
+    eq(p && p.name, NAMES[i], 'nama mapel ' + k);
+    eq(SOAL.nameOf(k), NAMES[i], 'nameOf(' + k + ')');
+  });
+
+  const allIds = SOAL.list.map((s) => s.id);
+  eq(new Set(allIds).size, 700, 'id soal unik');
+  eq(Math.min(...allIds), 1, 'id mulai dari 1');
+  eq(Math.max(...allIds), 700, 'id s.d. 700');
+
   for (const s of SOAL.list) {
-    ok(['mudah', 'sedang', 'sulit'].indexOf(s.l) !== -1, 'soal ' + s.id + ' punya tingkat valid');
-    ok(!!s.k, 'soal ' + s.id + ' punya kategori');
-    ok(typeof s.q === 'string' && s.q.length > 0, 'soal ' + s.id + ' punya teks');
-    ok(typeof s.a === 'string' && s.a.length > 0, 'soal ' + s.id + ' punya jawaban');
-    eq(s.d.length, 5, 'soal ' + s.id + ' punya 5 pengecoh');
-    eq(new Set([...s.d, s.a]).size, 6, 'soal ' + s.id + ' opsi unik & jawaban tak sama pengecoh');
+    const at = 'soal ' + s.id;
+    ok(KEYS.indexOf(s.subj) !== -1, at + ' punya subj valid (' + s.subj + ')');
+    ok(['mudah', 'sedang', 'sulit'].indexOf(s.l) !== -1, at + ' punya tingkat valid');
+    ok(!!s.k, at + ' punya kategori');
+    ok(typeof s.q === 'string' && s.q.length > 0, at + ' punya teks');
+    ok(typeof s.a === 'string' && s.a.length > 0, at + ' punya jawaban');
+    eq(s.d.length, 5, at + ' punya 5 pengecoh');
+    eq(new Set([...s.d, s.a]).size, 6, at + ' opsi unik & jawaban tak sama pengecoh');
     if (s.img !== undefined) {
-      ok(typeof s.img === 'string' && s.img.indexOf('assets/img/') === 0, 'soal ' + s.id + ' img di folder assets/img');
-      ok(fs.existsSync(path.join(dir, '..', s.img)), 'soal ' + s.id + ' file gambar ada (' + s.img + ')');
+      ok(typeof s.img === 'string' && s.img.indexOf('assets/img/') === 0, at + ' img di folder assets/img');
+      ok(fs.existsSync(path.join(dir, '..', s.img)), at + ' file gambar ada (' + s.img + ')');
     }
-    hitung[s.l]++;
   }
-  eq(hitung.mudah, 40, '40 soal mudah');
-  eq(hitung.sedang, 35, '35 soal sedang');
-  eq(hitung.sulit, 25, '25 soal sulit');
+
+  for (const sub of SOAL.subjects) {
+    const list = SOAL.listOf(sub.key);
+    eq(list.length, 100, sub.key + ': punya 100 soal');
+    eq(sub.count, 100, sub.key + ': field count akurat');
+    const hitung = { mudah: 0, sedang: 0, sulit: 0 };
+    const seenQ = new Set();
+    const seenPair = new Set();
+    list.forEach((s) => {
+      hitung[s.l]++;
+      const qk = String(s.q).trim().toLowerCase();
+      const pair = qk + '||' + String(s.a).trim().toLowerCase();
+      const full = qk + '||' + [...s.d].map((d) => String(d).trim().toLowerCase()).sort().join(',');
+      ok(!seenPair.has(pair), sub.key + ': soal + jawaban sama persis (' + s.q + ' -> ' + s.a + ')');
+      ok(!seenQ.has(full), sub.key + ': opsi identik dengan soal lain (' + s.q + ')');
+      seenPair.add(pair);
+      seenQ.add(full);
+    });
+    eq(hitung.mudah, 40, sub.key + ': 40 soal mudah');
+    eq(hitung.sedang, 35, sub.key + ': 35 soal sedang');
+    eq(hitung.sulit, 25, sub.key + ': 25 soal sulit');
+    const kats = new Set(list.map((s) => s.k));
+    ok(kats.size >= 4, sub.key + ': minimal 4 kategori (dapat ' + kats.size + ')');
+  }
+
   const bergambar = SOAL.list.filter((s) => s.img);
   ok(bergambar.length >= 10, 'ada minimal 10 soal bergambar (dapat ' + bergambar.length + ')');
   const uniqImg = new Set(bergambar.map((s) => s.img));
@@ -304,6 +344,40 @@ console.log('== createRound ==');
     const pool = AJ.LEVEL_POOL[lvl];
     ok(SOAL.list.some((s) => s.id === c.id && pool.indexOf(s.l) !== -1), `level ${lvl} soal dari pool-nya`);
   }
+}
+
+console.log('== createRound per mapel ==');
+{
+  for (const sub of SOAL.subjects) {
+    const ids = new Set();
+    const kats = new Set();
+
+    for (let i = 0; i < 60; i++) {
+      const r = AJ.createRound({ level: 'sedang', subject: sub.key });
+      eq(r.subj, sub.key, `${sub.key}: soal berasal dari mapel terpilih`);
+      eq(r.subjName, sub.name, `${sub.key}: subjName terisi`);
+      eq(r.options.length, 4, `${sub.key}: sedang punya 4 opsi`);
+      eq(r.options.filter((o) => o.correct).length, 1, `${sub.key}: tepat 1 jawaban benar`);
+      ok(r.options.some((o) => o.correct && o.value === r.answer), `${sub.key}: jawaban ada di opsi`);
+      ids.add(r.id);
+      kats.add(r.type);
+
+      ok(AJ.LEVEL_POOL.sedang.indexOf((SOAL.list.find((s) => s.id === r.id) || {}).l) !== -1, `${sub.key}: soal dari pool level sedang`);
+    }
+    ok(ids.size >= 25, `${sub.key}: bervariasi (${ids.size} soal beda dari 60 ronde)`);
+    ok(kats.size >= 4, `${sub.key}: variasi kategori (${kats.size})`);
+  }
+
+  const m = AJ.createRound({ level: 'mudah', subject: 'ipas' });
+  eq(m.subj, 'ipas', 'filter mapel ikut level mudah');
+  ok(m.id > 0, 'selalu ada soal');
+
+  const fallback = AJ.createRound({ level: 'sedang', subject: 'tidak-ada' });
+  ok(fallback.id > 0, 'mapel tak dikenal tetap jatuh ke bank umum (fallback)');
+  ok(KEYS.indexOf(fallback.subj) !== -1, 'fallback tetap dari mapel valid');
+
+  const s1 = AJ.createRound({ level: 'sulit', subject: 'matematika' });
+  eq(s1.subj, 'matematika', 'mapel matematika terpakai di level sulit');
 }
 
 console.log('== skor ==');

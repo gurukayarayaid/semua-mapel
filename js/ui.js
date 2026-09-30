@@ -151,17 +151,17 @@
         img.src = q.img;
         img.alt = '';
         main.appendChild(img);
-        hint.textContent = q.q + ' \u2014 Kategori: ';
-        const b = document.createElement('b');
-        b.textContent = q.cat;
-        hint.appendChild(b);
+        hint.textContent = q.q + ' \u2014 ';
       } else {
         main.textContent = q.q;
-        hint.textContent = 'Kategori: ';
-        const b = document.createElement('b');
-        b.textContent = q.cat;
-        hint.appendChild(b);
+        hint.textContent = '';
       }
+      const pre = document.createElement('span');
+      pre.textContent = q.subjName ? q.subjName + ' \u2022 Kategori: ' : 'Kategori: ';
+      hint.appendChild(pre);
+      const b = document.createElement('b');
+      b.textContent = q.cat;
+      hint.appendChild(b);
     },
 
     createOption(question, index, size) {
